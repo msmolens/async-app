@@ -1,5 +1,6 @@
 import { Express, NextFunction, Request, Response } from 'express';
 import { CustomError } from './error';
+import { SchemaValidationError } from './schema-validation-error';
 
 // === General ============================================================== //
 export interface Context {
@@ -100,6 +101,8 @@ export type ErrorHandlerFn<TEntities extends Entities> = (
   next: NextFunction,
 ) => any;
 
+export { SchemaValidationError };
+
 // === Arguments ============================================================ //
 export type MiddlewareArg<TEntities extends Entities> =
   | CommonMiddleware<TEntities>
@@ -164,6 +167,9 @@ export interface Opts<
   errorHandlerFn?: ErrorHandlerFn<TEntities>;
   validateResponseSchema?: boolean;
   mapAsyncResultFn?: MapAsyncResultFn<TEntities>;
+  // When true, forward schema validation errors to next() instead of calling
+  // generateSchemaErrorFn and sending a response directly. Defaults to false.
+  forwardSchemaErrors?: boolean;
 }
 
 export type Method = keyof AsyncApp<Entities, unknown>;

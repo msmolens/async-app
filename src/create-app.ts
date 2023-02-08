@@ -77,6 +77,7 @@ export const createApp = <TEntities extends Entities = Entities, TSchema = {}>(
     converters.push(schemaConverter(
       opts.compileSchemaFn,
       opts.generateSchemaErrorFn,
+      opts.forwardSchemaErrors,
     ));
   }
 

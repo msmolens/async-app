@@ -33,10 +33,13 @@ export type Req<T extends keyof ExampleEntities = '_'> = Request<
   T
 >;
 
-export { ErrorHandlerFn } from '../..';
+export { ErrorHandlerFn, SchemaValidationError } from '../..';
 
 // This function replaces `express()` as in `const app = express()`;
-export default (errorHandlerFn?: ErrorHandlerFn<ExampleEntities>) =>
+export default (
+  errorHandlerFn?: ErrorHandlerFn<ExampleEntities>,
+  forwardSchemaErrors = false,
+) =>
   createApp<ExampleEntities, Type>({
     // In here you specify additional `async-app` options...
 
@@ -45,6 +48,10 @@ export default (errorHandlerFn?: ErrorHandlerFn<ExampleEntities>) =>
     // different `compileSchemaFn`.
     compileSchemaFn: schema => parseSchema(schema),
     errorHandlerFn,
+    // The following line enables forwarding schema validation errors to next()
+    // instead of calling generateSchemaErrorFn and sending a response directly.
+    // Defaults to false.
+    forwardSchemaErrors,
     mapAsyncResultFn: async (value, { req, ...opts }) => {
       if (value !== 'echo') return value;
 

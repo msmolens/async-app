@@ -13,6 +13,7 @@ import createApp, { Req } from './async-app';
 import can from './can';
 import { addTodo, addUser, getTodosForUser } from './db';
 import load from './load';
+import purgeTodos from './purge-todos';
 import purgeUser from './purgeUser';
 
 const app = createApp();
@@ -112,6 +113,8 @@ app.get(
   can.view.todo(),
   (req: Req<'todo'>) => req.todo,
 );
+
+app.use('/todos-by-id/purge', purgeTodos);
 
 app.get('/echo1', () => 'echo');
 

@@ -51,6 +51,15 @@ Scenario: get TODOs by id
     }
     """
 
+Scenario: delete TODOs by id
+  Given a user U with { "username": "${random}", "name": "Ringo ${random}" }
+  And a todo T1 with { "owner": "${U.username}", "item": "Autograph a photo for Marge" }
+  And a todo T2 with { "owner": "${U.username}", "item": "Autograph a record for Lisa" }
+  When POST /todos-by-id/purge with payload { "ids": [${T1.id}, ${T2.id}] }
+  Then the response is 204
+  And the todo T1 was deleted
+  And the todo T2 was deleted
+
 Scenario: delete USER by id
   Given a user U with { "username": "${random}", "name": "Ringo ${random}" }
   When DELETE /users/purge/${U.username}
@@ -155,6 +164,45 @@ Scenario: create TODO for an invalid user
 Scenario: get TODOs for an invalid user
   When GET /todos/invalid
   Then the response is 404 and the payload at error is "USER"
+
+Scenario: delete TODOs with invalid payload
+  When POST /todos-by-id/purge with payload { "ids": [2, "a"], "invalid": 1 }
+  Then the response is 400 and the payload is
+    """
+    {
+      "error": "INVALID_PAYLOAD",
+      "expected": "number",
+      "path": ["ids", 1],
+      "source": "body"
+    }
+    """
+
+Scenario: delete TODOs with invalid payload; include all validation errors
+  Given the request header x-include-all-schema-errors is "1"
+  When POST /todos-by-id/purge with payload { "ids": [2, "a"], "invalid": 1 }
+  Then the response is 400 and the payload includes
+    """
+    {
+      "all": [
+        {
+          "expected": "number",
+          "key": [
+            "ids",
+            1
+          ],
+          "message": "Expected number"
+        },
+        {
+          "key": [
+            "invalid"
+          ],
+          "message": "Unexpected key"
+        }
+      ],
+      "error": "INVALID_PAYLOAD",
+      "source": "body"
+    }
+    """
 
 # Deprecated
 Scenario: deprecate.endpoint

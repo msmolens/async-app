@@ -7,6 +7,7 @@ import {
   isSchema,
   Middleware,
   RequestScope,
+  SchemaValidationError,
   Scope,
   ValidateSchema,
 } from './types';
@@ -29,6 +30,7 @@ const defaultGenerateError: GenerateSchemaErrorFn = ([error], source) => ({
 const createMiddleware = <TEntities extends Entities>(
   validate: ValidateSchema,
   generateError: GenerateSchemaErrorFn,
+  forwardSchemaErrors: boolean,
   source: RequestScope,
 ): Middleware<TEntities> =>
     (req, res, next) => {
@@ -37,17 +39,22 @@ const createMiddleware = <TEntities extends Entities>(
 
       const schemaErrors = validate(data);
 
-      if (schemaErrors.length) {
-        res.status(400).send(generateError(schemaErrors, realSource));
-        return;
+      if (!schemaErrors.length) {
+        return next();
       }
 
-      return next();
+      if (forwardSchemaErrors) {
+        const error = new SchemaValidationError(schemaErrors, realSource);
+        return next(error);
+      }
+
+      res.status(400).send(generateError(schemaErrors, realSource));
     };
 
 export default <TEntities extends Entities, TSchema>(
   compileSchema: CompileSchema<TSchema>,
   generateError = defaultGenerateError,
+  forwardSchemaErrors = false,
 ) => (
   middlewares: ArgumentOption<TEntities, TSchema>[],
   context: Context,
@@ -65,6 +72,7 @@ export default <TEntities extends Entities, TSchema>(
   const schemaMiddleware = createMiddleware<TEntities>(
     compileSchema(schema.$schema || schema, context),
     generateError,
+    forwardSchemaErrors,
     source,
   );
 
