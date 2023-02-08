@@ -91,6 +91,9 @@ export type CompileSchema<T> = (
 export type GenerateSchemaErrorFn = (
   errors: ValidationError[],
   source: string,
+  context: {
+    req: Request,
+  },
 ) => any;
 
 export type ErrorHandlerFn<TEntities extends Entities> = (

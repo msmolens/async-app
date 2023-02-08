@@ -38,7 +38,7 @@ const createMiddleware = <TEntities extends Entities>(
       const schemaErrors = validate(data);
 
       if (schemaErrors.length) {
-        res.status(400).send(generateError(schemaErrors, realSource));
+        res.status(400).send(generateError(schemaErrors, realSource, { req }));
         return;
       }
 
