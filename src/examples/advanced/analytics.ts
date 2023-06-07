@@ -11,8 +11,9 @@ const printRoute = (route: Route<Type>) => [
     : '',
 ].filter(s => !!s).join('\n');
 
-console.log(
-  analyze<any, Type>(() => require('./app').default)
-  .map(printRoute)
-  .join('\n\n'),
-);
+async function main() {
+  const routes = await analyze<any, Type>(() => require('./app').default);
+  console.log(routes.map(printRoute).join('\n\n'));
+}
+
+main();

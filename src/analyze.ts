@@ -145,10 +145,10 @@ Module.prototype.require = function require(path: string) {
   return originalRequire.apply(this, arguments); // tslint:disable-line
 };
 
-const analyzeApp = <TEntities extends Entities, TSchema>(
+const analyzeApp = async <TEntities extends Entities, TSchema>(
   returnYourAppFromThisFn: () => App<TEntities, TSchema>,
-): Route<TSchema>[] => {
-  const app = returnYourAppFromThisFn() as any as MetadataApp<TSchema>;
+): Promise<Route<TSchema>[]> => {
+  const app = await returnYourAppFromThisFn() as any as MetadataApp<TSchema>;
   return app.getRoutes();
 };
 
