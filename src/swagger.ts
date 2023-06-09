@@ -41,7 +41,7 @@ const defaultGeneratePermissions = (permissions: string[]) => {
 
 const isQuerySchema = (schema: any, method: string) =>
   schema &&
-  ((schema as Schema).$scope || METHOD_SOURCE_MAP[method] === 'query');
+  ((schema as Schema).$scope || METHOD_SOURCE_MAP[method]) === 'query';
 
 const wrapBodySchema = (schema: any) =>
   schema
